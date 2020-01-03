@@ -12,13 +12,13 @@
 ;
 ; Device: ATtiny13A, Package: 8-pin-PDIP_SOIC
 ;
-;						   		      _________
-;								   1 /         |8
+;					  _________
+;				       1 /         |8
 ;	(PCINT5/RESET/ADC0/dW) PB5   o--|RESET  VCC|--o  VCC
 ;	(PCINT3/CLKI/ADC3) PB3       o--|PB3    PB2|--o  PB2 (SCK/ADC1/T0/PCINT2)
-;	(PCINT4/ADC2) PB4			 x--|PB4    PB1|--x  PB1 (MISO/AIN1/OC0B/INT0/PCINT1)
-;						   GND   o--|GND    PB0|--o  PB0 (MOSI/AIN0/OC0A/PCINT0)
-;								  4 |__________|5 
+;	(PCINT4/ADC2) PB4	     x--|PB4    PB1|--x  PB1 (MISO/AIN1/OC0B/INT0/PCINT1)
+;			       GND   o--|GND    PB0|--o  PB0 (MOSI/AIN0/OC0A/PCINT0)
+;				      4 |__________|5 
 ; Push button input attached to PORTB, PIN1
 ; LED +ve side attached to PORTB, PIN4
 ; ISP programming connections on MOSI,MISO,SCK,VCC,GND AND RESET
@@ -105,12 +105,12 @@ back:	cpi r19,0
 lightonshort:
 	push rmp
 	ldi rmp,0x04			;Counter for number of flashes
-top:	Sbi PORTB,PORTB4	;LED on
+top:	Sbi PORTB,PORTB4		;LED on
 	rcall delayshort		;Delay
 	cbi PORTB,PORTB4		;LED off
 	rcall delayshort		;Delay
 	dec rmp
-	brne top				;Loop for flashes
+	brne top			;Loop for flashes
 	pop rmp
 	ret
 ;--------------
@@ -119,11 +119,11 @@ delayshort:
 	push r19
 	ldi r19,3			;initialise r19
 	ldi rmp,(1<<CS02)|(1<<CS00)
-	OUT TCCR0B,rmp		;start the 8 bit timer
+	OUT TCCR0B,rmp			;start the 8 bit timer
 backshort:	cpi r19,0
 	brne backshort
 	ldi rmp,(0<<CS02)|(0<<CS00)
-	OUT TCCR0B,rmp		;stop the timer
+	OUT TCCR0B,rmp			;stop the timer
 	pop r19
 	pop rmp				;restore the rmp register
 	ret
@@ -134,12 +134,12 @@ backshort:	cpi r19,0
 
 Main:
 ;-------------STACK POINTER SETUP----------
-.ifdef SPH				; if SPH is defined
+.ifdef SPH			; if SPH is defined
   ldi rmp,High(RAMEND)
   out SPH,rmp			; Init MSB stack pointer
   .endif
 	ldi rmp,Low(RAMEND)
-	out SPL,rmp			; Init LSB stack pointer
+	out SPL,rmp		; Init LSB stack pointer
 ;-------------CLOCK PRESCALER SETUP----------
 	cli
 	ldi rmp,0b10000000	; Load 1 to CLKPCE (prescaler change enable)
@@ -149,7 +149,7 @@ Main:
 
 ;-------------SETUP - INPUT / OUTPUT SIGNALS----------
 	sbi DDRB,DDB4		; LED OUTPUT ON PA4
-	SBI DDRB,DDB1		; Push button input on PB1
+	cBI DDRB,DDB1		; Push button input on PB1
 	sbi PORTB,PORTB1	; Pullup enable on pB1 button
 	CBI PORTB,PORTB4	; LED OFF
 
@@ -159,11 +159,11 @@ Main:
 
 ;-------------ENABLE INTERRUPTS----------
 
-	ldi rmp,1<<ISC01	; INT0 interrupt - falling edge
+	ldi rmp,(1<<ISC01)	; INT0 interrupt - falling edge
 	out MCUCR,rmp		; MCU CONTROL REGISTER
 	ldi rmp,1<<INT0		; Enable INT0
 	out GIMSK,rmp		; Interrupt mask register
-	sei					; Enable global interrupts
+	sei			; Enable global interrupts
 
 ;-------------SLEEP MODE ENABLE----------
 	ldi rmp,(1<<SM1)|(1<<SE)  ; power down sleep mode | sleep enable 
